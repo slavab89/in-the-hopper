@@ -1,0 +1,24 @@
+{
+  "name": "mid-hopper",
+  "version": "1.0.0",
+  "description": "Node.js middleware for taking out data from a request",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "contributors": [
+    "Slava Balabanov <bslava89@gmail.com>"
+  ],
+  "keywords": [
+    "express",
+    "koa",
+    "connect",
+    "http",
+    "logger",
+    "middleware"
+  ],
+  "engines": {
+    "node": ">= 8"
+  },
+  "license": "MIT"
+}
