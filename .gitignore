@@ -1,0 +1,12 @@
+node_modules
+coverage
+npm-debug.log
+logs
+*.log
+.tmp
+.idea
+.vscode
+.nyc_output
+report.xml
+eslint.xml
+.DS_Store
