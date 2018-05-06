@@ -1,27 +1,29 @@
 const onFinished = require('on-finished');
 
-module.exports.middlewareCreator =
-  function createConnectMiddleware({ fields, formatter, handler }) {
-    return function hopperMiddleware(req, res, next) {
-      const startTime = Date.now();
-      function onResponseFinish() {
-        const responseTime = Date.now() - startTime;
+module.exports.middlewareCreator = function createConnectMiddleware({
+  fields,
+  formatter,
+  handler,
+}) {
+  return function hopperMiddleware(req, res, next) {
+    const startTime = Date.now();
+    function onResponseFinish() {
+      const responseTime = Date.now() - startTime;
 
-        const entry = formatter(fields, req, res);
+      const entry = formatter(fields, req, res);
 
-        if (fields.responseTime) {
-          entry.responseTime = responseTime;
-        }
-
-        handler(entry);
+      if (fields.responseTime) {
+        entry.responseTime = responseTime;
       }
 
-      onFinished(res, onResponseFinish);
-      next();
-    };
-  };
+      handler(entry);
+    }
 
-// const defaultResolver = field => ctx => ctx[field];
+    onFinished(res, onResponseFinish);
+    next();
+  };
+};
+
 function requestResolver(field) {
   return req => req[field];
 }

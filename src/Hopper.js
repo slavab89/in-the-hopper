@@ -1,7 +1,7 @@
 const middlwares = require('./middlewareCreators');
 
 function defaultHandler(message) {
-  console.log(JSON.stringify(message));
+  console.log(JSON.stringify(message)); // eslint-disable-line no-console
 }
 
 function formatJSON(fields, ...args) {
