@@ -1,11 +1,13 @@
-const middlwares = require('./middlewareCreators');
+const getFieldResolvers = require('./getFieldResolvers');
+const getMiddleware = require('./middlewareCreator');
+const { TYPE_OPTIONS, TYPE_KOA } = require('./consts');
 
 function defaultHandler(message) {
   console.log(JSON.stringify(message)); // eslint-disable-line no-console
 }
 
-function formatJSON(fields, ...args) {
-  const entryObject = Object.entries(fields).reduce((result, [field, resolver]) => {
+function formatJSON(fieldResolvers, ...args) {
+  const entryObject = Object.entries(fieldResolvers).reduce((result, [field, resolver]) => {
     Object.assign(result, { [field]: resolver(...args) });
     return result;
   }, {});
@@ -13,34 +15,58 @@ function formatJSON(fields, ...args) {
   return entryObject;
 }
 
-function Hopper(opts) {
+function Hopper(opts = {}) {
+  if (opts.type && opts.middlewareCreator) {
+    throw new Error('Cant use both type and middlewareCreator options, please only send one');
+  }
+
+  if (opts.type && !TYPE_OPTIONS.includes(opts.type)) {
+    throw new TypeError(`type can be one of ${TYPE_OPTIONS}`);
+  }
+
+  if (opts.middlewareCreator && typeof opts.middlewareCreator !== 'function') {
+    throw new TypeError('middlewareCreator should be a function');
+  }
+
   const options = {
     defaultFields: true,
-    middlewareCreator: middlwares.koa.middlewareCreator,
+    type: TYPE_KOA,
     formatter: formatJSON,
     handler: defaultHandler,
     ...opts,
   };
 
-  const fields = {};
-
-  if (typeof options.defaultFields === 'boolean' && options.defaultFields) {
-    if (options.middlewareCreator === middlwares.koa.middlewareCreator) {
-      Object.assign(fields, middlwares.koa.defaultResolvers);
-    } else if (options.middlewareCreator === middlwares.express.middlewareCreator) {
-      Object.assign(fields, middlwares.express.defaultResolvers);
-    }
+  const fieldResolvers = {};
+  if (!options.middlewareCreator) {
+    Object.assign(
+      fieldResolvers,
+      getFieldResolvers({
+        type: options.type,
+        defaultFields: options.defaultFields,
+      }),
+    );
   }
 
-  const middleware = options.middlewareCreator({
-    fields,
+  const middlewareOpts = {
+    fieldResolvers,
     formatter: options.formatter,
     handler: options.handler,
-  });
+  };
+  const middleware = getMiddleware(
+    {
+      middlewareCreator: options.middlewareCreator,
+      type: options.type,
+    },
+    middlewareOpts,
+  );
+
+  if (typeof middleware !== 'function') {
+    throw new TypeError('middlewareCreator should return a function');
+  }
 
   Object.defineProperty(middleware, 'addField', {
     value: (fieldName, resolver) => {
-      fields[fieldName] = resolver;
+      fieldResolvers[fieldName] = resolver;
     },
   });
 
