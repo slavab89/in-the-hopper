@@ -34,7 +34,6 @@ const koaDefaultResolvers = {
   contentType: koaResolver('type'),
   host: koaResolver('host'),
   headers: koaResolver('headers'),
-  userAgent: ctx => ctx.get('user-agent'),
 };
 
 const expressDefaultResolvers = {

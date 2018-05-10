@@ -1,12 +1,15 @@
 const onFinished = require('on-finished');
 const { TYPE_KOA, TYPE_EXPRESS } = require('./consts');
 
-const onResponseFinishWrapper = ({ fieldResolvers, formatter, handler }) => (startTime, ...args) =>
+const onResponseFinishWrapper = ({ fieldInterpreters, resolver, handler }) => (
+  startTime,
+  ...args
+) =>
   function onResponseFinish() {
     const responseTime = Date.now() - startTime;
-    const entry = formatter(fieldResolvers, ...args);
+    const entry = resolver(fieldInterpreters, ...args);
 
-    if (fieldResolvers.responseTime) {
+    if (fieldInterpreters.responseTime) {
       entry.responseTime = responseTime;
     }
 

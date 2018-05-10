@@ -1,14 +1,14 @@
-const getFieldResolvers = require('./getFieldResolvers');
+const getFieldInterpreters = require('./getFieldInterpreters');
 const getMiddleware = require('./middlewareCreator');
 const { TYPE_OPTIONS, TYPE_KOA } = require('./consts');
 
-function defaultHandler(message) {
-  console.log(JSON.stringify(message)); // eslint-disable-line no-console
+function defaultHandler(entry) {
+  console.log(JSON.stringify(entry)); // eslint-disable-line no-console
 }
 
-function formatJSON(fieldResolvers, ...args) {
-  const entryObject = Object.entries(fieldResolvers).reduce((result, [field, resolver]) => {
-    Object.assign(result, { [field]: resolver(...args) });
+function resolveJSON(fieldInterpreters, ...args) {
+  const entryObject = Object.entries(fieldInterpreters).reduce((result, [field, interpreter]) => {
+    Object.assign(result, { [field]: interpreter(...args) });
     return result;
   }, {});
 
@@ -31,16 +31,16 @@ function Hopper(opts = {}) {
   const options = {
     defaultFields: true,
     type: TYPE_KOA,
-    formatter: formatJSON,
+    resolver: resolveJSON,
     handler: defaultHandler,
     ...opts,
   };
 
-  const fieldResolvers = {};
+  const fieldInterpreters = {};
   if (!options.middlewareCreator) {
     Object.assign(
-      fieldResolvers,
-      getFieldResolvers({
+      fieldInterpreters,
+      getFieldInterpreters({
         type: options.type,
         defaultFields: options.defaultFields,
       }),
@@ -48,8 +48,8 @@ function Hopper(opts = {}) {
   }
 
   const middlewareOpts = {
-    fieldResolvers,
-    formatter: options.formatter,
+    fieldInterpreters,
+    resolver: options.resolver,
     handler: options.handler,
   };
   const middleware = getMiddleware(
@@ -65,8 +65,8 @@ function Hopper(opts = {}) {
   }
 
   Object.defineProperty(middleware, 'addField', {
-    value: (fieldName, resolver) => {
-      fieldResolvers[fieldName] = resolver;
+    value: (fieldName, interpreter) => {
+      fieldInterpreters[fieldName] = interpreter;
     },
   });
 
