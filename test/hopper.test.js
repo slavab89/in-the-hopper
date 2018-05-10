@@ -58,11 +58,11 @@ describe('Hopper functionality', () => {
     const handler = noop;
     const resolver = noop;
     const midCreator = opts => {
-      expect(opts)
-        .to.have.own.property('fieldInterpreters')
-        .that.is.a('object');
-      expect(opts).to.have.own.property('resolver', resolver);
-      expect(opts).to.have.own.property('handler', handler);
+      expect(opts).to.have.all.keys(['fieldInterpreters', 'resolver', 'handler', 'immediate']);
+      expect(opts.fieldInterpreters).to.be.a('object');
+      expect(opts.resolver).to.equal(resolver);
+      expect(opts.handler).to.equal(handler);
+      expect(opts.immediate).to.equal(false);
 
       return noop;
     };
@@ -109,5 +109,10 @@ describe('Hopper functionality', () => {
     const resolver = () => fakeFormat;
     const entry = await doRequest({ middlewareCreator, resolver });
     expect(entry).to.deep.equal(fakeFormat);
+  });
+
+  it('should immediattely invoke handler before finishing request', async () => {
+    const entry = await doRequest({ middlewareCreator, immediate: true });
+    expect(entry).to.not.have.property('responseTime');
   });
 });

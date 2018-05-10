@@ -1,30 +1,37 @@
 const onFinished = require('on-finished');
 const { TYPE_KOA, TYPE_EXPRESS } = require('./consts');
 
-const onResponseFinishWrapper = ({ fieldInterpreters, resolver, handler }) => (
-  startTime,
-  ...args
-) =>
-  function onResponseFinish() {
-    const responseTime = Date.now() - startTime;
+const onRequestWrapper = ({ fieldInterpreters, resolver, handler }) => (startTime, ...args) =>
+  function onRequestHandler() {
+    let responseTime;
+    if (startTime) {
+      responseTime = Date.now() - startTime;
+    }
     const entry = resolver(fieldInterpreters, ...args);
 
-    if (fieldInterpreters.responseTime) {
+    if (responseTime && fieldInterpreters.responseTime) {
       entry.responseTime = responseTime;
     }
 
     handler(entry);
   };
 
-const koaMiddlewareWrapper = onResponseFinishHandler => async (ctx, next) => {
-  const startTime = Date.now();
-  onFinished(ctx.res, onResponseFinishHandler(startTime, ctx));
+const triggerHandlerWrapper = ({ onRequestHandler, immediate }) => res => (...args) => {
+  if (immediate) {
+    onRequestHandler(null, ...args);
+  } else {
+    const startTime = Date.now();
+    onFinished(res, onRequestHandler(startTime, ...args));
+  }
+};
+
+const koaMiddlewareWrapper = triggerHandler => async (ctx, next) => {
+  triggerHandler(ctx.res)(ctx);
   await next();
 };
 
-const expressMiddlewareWrapper = onResponseFinishHandler => (req, res, next) => {
-  const startTime = Date.now();
-  onFinished(res, onResponseFinishHandler(startTime, req, res));
+const expressMiddlewareWrapper = triggerHandler => (req, res, next) => {
+  triggerHandler(res)(req, res);
   next();
 };
 
@@ -34,12 +41,16 @@ module.exports = ({ middlewareCreator, type }, middlewareOpts) => {
   if (middlewareCreator) {
     middleware = middlewareCreator(middlewareOpts);
   } else {
-    const finish = onResponseFinishWrapper(middlewareOpts);
+    const onRequestHandler = onRequestWrapper(middlewareOpts);
+    const triggerHandler = triggerHandlerWrapper({
+      onRequestHandler,
+      immediate: middlewareOpts.immediate,
+    });
 
     if (type === TYPE_KOA) {
-      middleware = koaMiddlewareWrapper(finish);
+      middleware = koaMiddlewareWrapper(triggerHandler);
     } else if (type === TYPE_EXPRESS) {
-      middleware = expressMiddlewareWrapper(finish);
+      middleware = expressMiddlewareWrapper(triggerHandler);
     }
   }
 

@@ -43,6 +43,12 @@ describe('Koa related', () => {
     ]);
   });
 
+  it('should have some response data in handler', async () => {
+    const entry = await doRequest();
+    expect(entry).to.have.property('status', 200);
+    expect(entry).to.have.property('method', 'GET');
+  });
+
   it('should call resolver with koa context param', async () => {
     const resolver = (fields, ...args) => {
       expect(args).to.have.lengthOf(1);

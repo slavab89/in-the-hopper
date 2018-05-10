@@ -10,8 +10,17 @@
     "test": "mocha --recursive --colors",
     "coverage": "nyc --reporter=text mocha --recursive"
   },
-  "contributors": ["Slava Balabanov <bslava89@gmail.com>"],
-  "keywords": ["express", "koa", "connect", "http", "logger", "middleware"],
+  "contributors": [
+    "Slava Balabanov <bslava89@gmail.com>"
+  ],
+  "keywords": [
+    "express",
+    "koa",
+    "connect",
+    "http",
+    "logger",
+    "middleware"
+  ],
   "engines": {
     "node": ">= 8"
   },
@@ -46,6 +55,8 @@
     }
   },
   "commitlint": {
-    "extends": ["@commitlint/config-conventional"]
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }
