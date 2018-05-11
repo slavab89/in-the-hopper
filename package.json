@@ -1,5 +1,5 @@
 {
-  "name": "mid-hopper",
+  "name": "in-the-hopper",
   "version": "1.0.0",
   "description": "Node.js middleware for taking out data from a request",
   "main": "index.js",
