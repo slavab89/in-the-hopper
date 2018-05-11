@@ -64,10 +64,10 @@ describe('Koa related', () => {
 
   it('should call handler without any fields when defaultFields is false', async () => {
     const entry = await doRequest({ defaultFields: false });
-    expect(entry).to.deep.equal({});
+    expect(entry).to.have.all.keys(['responseTime']);
   });
 
-  it('should record responseTime based on request flow', async () => {
+  it('should record responseTime based on default options', async () => {
     const fakeTime = faker.random.number();
     const responseTime = 2000;
     const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
@@ -78,8 +78,53 @@ describe('Koa related', () => {
 
     const entry = await doRequest({ afterMiddleware });
     expect(entry).to.have.own.property('responseTime', responseTime);
+    expect(entry).to.not.have.own.property('requestTime');
 
     clock.uninstall();
+  });
+
+  it('should record responseTime when option passed', async () => {
+    const fakeTime = faker.random.number();
+    const responseTime = 2000;
+    const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
+
+    const afterMiddleware = () => {
+      clock.tick(responseTime);
+    };
+
+    const entry = await doRequest({ afterMiddleware, timestamps: { responseTime: true } });
+    expect(entry).to.have.own.property('responseTime', responseTime);
+    clock.uninstall();
+  });
+
+  it('should record requestTime when option passed', async () => {
+    const fakeTime = faker.random.number();
+    const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
+
+    const entry = await doRequest({ timestamps: { requestTime: true } });
+    expect(entry).to.have.own.property('requestTime', fakeTime);
+    clock.uninstall();
+  });
+
+  it('should record both times when option passed', async () => {
+    const fakeTime = faker.random.number();
+    const responseTime = 2000;
+    const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
+
+    const afterMiddleware = () => {
+      clock.tick(responseTime);
+    };
+
+    const entry = await doRequest({ afterMiddleware, timestamps: true });
+    expect(entry).to.have.own.property('requestTime', fakeTime);
+    expect(entry).to.have.own.property('responseTime', responseTime);
+    clock.uninstall();
+  });
+
+  it('should not record times if option disabled', async () => {
+    const entry = await doRequest({ timestamps: false });
+    expect(entry).to.not.have.own.property('requestTime');
+    expect(entry).to.not.have.own.property('responseTime');
   });
 
   it('should still call handler when exception occurs', async () => {
@@ -89,5 +134,10 @@ describe('Koa related', () => {
 
     const entry = await doRequest({ status: 500, afterMiddleware });
     expect(entry.status).to.equal(500);
+  });
+
+  it('should immediattely invoke koa handler before finishing request', async () => {
+    const entry = await doRequest({ immediate: true });
+    expect(entry).to.not.have.property('responseTime');
   });
 });

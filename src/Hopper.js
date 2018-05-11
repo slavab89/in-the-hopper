@@ -32,6 +32,7 @@ function Hopper(opts = {}) {
     defaultFields: true,
     type: TYPE_KOA,
     immediate: false,
+    timestamps: { responseTime: true },
     resolver: resolveJSON,
     handler: defaultHandler,
     ...opts,
@@ -52,6 +53,7 @@ function Hopper(opts = {}) {
     fieldInterpreters,
     resolver: options.resolver,
     handler: options.handler,
+    timestamps: options.timestamps,
     immediate: options.immediate,
   };
   const middleware = getMiddleware(

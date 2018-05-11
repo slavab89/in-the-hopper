@@ -25,7 +25,6 @@ function responseHeaderResolver(field) {
 }
 
 const koaDefaultResolvers = {
-  responseTime: () => -1,
   status: koaResolver('status'),
   ip: koaResolver('ip'),
   method: koaResolver('method'),
@@ -37,7 +36,6 @@ const koaDefaultResolvers = {
 };
 
 const expressDefaultResolvers = {
-  responseTime: () => -1,
   status: (req, res) => res.statusCode,
   ip: ipResolver,
   method: requestResolver('method'),

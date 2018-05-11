@@ -16,5 +16,13 @@ module.exports = function createKoaContext(req, res) {
     get: () => req.method,
   });
 
+  Object.defineProperty(ctx, 'url', {
+    get: () => req.url,
+  });
+
+  Object.defineProperty(ctx, 'headers', {
+    get: () => req.headers,
+  });
+
   return ctx;
 };
