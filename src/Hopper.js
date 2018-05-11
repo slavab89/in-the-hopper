@@ -55,6 +55,7 @@ function Hopper(opts = {}) {
     handler: options.handler,
     timestamps: options.timestamps,
     immediate: options.immediate,
+    ignore: options.ignore,
   };
   const middleware = getMiddleware(
     {

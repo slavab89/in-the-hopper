@@ -140,4 +140,22 @@ describe('Koa related', () => {
     const entry = await doRequest({ immediate: true });
     expect(entry).to.not.have.property('responseTime');
   });
+
+  it('should ignore based result from function', async () => {
+    const ignore = () => true;
+
+    const entry = await doRequest({ ignore });
+    expect(entry).to.equal(undefined);
+  });
+
+  it('should pass relevant fields to ignore function', async () => {
+    const ignore = ctx => {
+      expect(ctx.req).to.be.an.instanceOf(http.IncomingMessage);
+      expect(ctx.res).to.be.an.instanceOf(http.ServerResponse);
+      return true;
+    };
+
+    const entry = await doRequest({ ignore });
+    expect(entry).to.equal(undefined);
+  });
 });

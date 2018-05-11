@@ -1,11 +1,19 @@
 const onFinished = require('on-finished');
 const { TYPE_KOA, TYPE_EXPRESS } = require('./consts');
 
-const onRequestWrapper = ({ fieldInterpreters, resolver, handler, timestamps, immediate }) => (
-  requestTime,
-  ...args
-) =>
+const onRequestWrapper = ({
+  fieldInterpreters,
+  resolver,
+  handler,
+  timestamps,
+  immediate,
+  ignore,
+}) => (requestTime, ...args) =>
   function onRequestHandler() {
+    if (typeof ignore === 'function' && ignore(...args)) {
+      return;
+    }
+
     const responseTime = Date.now() - requestTime;
     const entry = resolver(fieldInterpreters, ...args);
 

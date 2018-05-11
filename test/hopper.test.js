@@ -64,6 +64,7 @@ describe('Hopper functionality', () => {
         'handler',
         'immediate',
         'timestamps',
+        'ignore',
       ]);
       expect(opts.fieldInterpreters).to.be.a('object');
       expect(opts.resolver).to.equal(resolver);

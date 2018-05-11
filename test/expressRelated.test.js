@@ -143,4 +143,22 @@ describe('Express related', () => {
     const entry = await doRequest({ immediate: true });
     expect(entry).to.not.have.property('responseTime');
   });
+
+  it('should ignore based result from function', async () => {
+    const ignore = () => true;
+
+    const entry = await doRequest({ ignore });
+    expect(entry).to.equal(undefined);
+  });
+
+  it('should pass relevant fields to ignore function', async () => {
+    const ignore = (req, res) => {
+      expect(req).to.be.an.instanceOf(http.IncomingMessage);
+      expect(res).to.be.an.instanceOf(http.ServerResponse);
+      return true;
+    };
+
+    const entry = await doRequest({ ignore });
+    expect(entry).to.equal(undefined);
+  });
 });
