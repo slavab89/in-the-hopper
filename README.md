@@ -31,11 +31,15 @@ The `addField` function receives a fieldName and a field interpreter
 ```js
 // Koa type
 const hopMiddleware = hopper();
-hopMiddleware.addField('query', ctx => ctx.query);
+hopMiddleware.addField('query', function interpreter(ctx) {
+  return ctx.query;
+});
 
 // Express type
 const hopMiddleware = hopper({ type: 'express' });
-hopMiddleware.addField('query', (req, res) => req.query);
+hopMiddleware.addField('query', function interpreter(req, res) {
+  return req.query;
+});
 ```
 
 ### Options
@@ -109,7 +113,7 @@ Specifying `true` will include both `requestTime` and `responseTime`. Passing an
 
 Default value: `false`
 
-Calls the [handler](#handler) on request finish instead of on response. Response data will not be available in the handler when this option is turned on.
+Calls the [handler](#handler) on request finish instead of on response. Response data will not be available in the handler or field interpreters when this option is turned on.
 
 #### ignore
 

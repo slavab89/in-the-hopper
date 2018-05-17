@@ -8,6 +8,10 @@ function ipResolver(req) {
   return req.ip || (req.connection && req.connection.remoteAddress) || undefined;
 }
 
+function hostResolver(req) {
+  return req.hostname || req.headers.host;
+}
+
 function requestResolver(field) {
   return req => req[field];
 }
@@ -42,7 +46,7 @@ const expressDefaultResolvers = {
   url: requestResolver('url'),
   contentLength: responseHeaderResolver('content-length'),
   contentType: responseHeaderResolver('content-type'),
-  host: requestResolver('hostname'),
+  host: hostResolver,
   headers: requestResolver('headers'),
 };
 

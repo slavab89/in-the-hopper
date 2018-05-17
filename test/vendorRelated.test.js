@@ -156,6 +156,11 @@ describe('Vendor hopper', () => {
         expect(entry).to.not.have.property('responseTime');
       });
 
+      it('should call handler without response data', async () => {
+        const entry = await doRequest({ immediate: true });
+        expect(entry).to.not.have.property('contentLength');
+      });
+
       it('should ignore based result from function', async () => {
         const ignore = () => true;
 

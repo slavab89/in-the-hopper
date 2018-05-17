@@ -33,6 +33,8 @@ const onRequestWrapper = ({
       }
     }
 
+    Object.keys(entry).forEach(key => entry[key] === undefined && delete entry[key]);
+
     handler(entry);
   };
 
@@ -52,6 +54,8 @@ const koaMiddlewareWrapper = triggerHandler => async (ctx, next) => {
 };
 
 const expressMiddlewareWrapper = triggerHandler => (req, res, next) => {
+  // Trigger cache getter ip because later it will be undefined
+  req.ip; // eslint-disable-line no-unused-expressions
   triggerHandler(res)(req, res);
   next();
 };

@@ -1,10 +1,12 @@
-const http = require('http');
 const request = require('supertest');
+const Koa = require('koa');
+const express = require('express');
 const Hopper = require('../../');
-const createKoaCtx = require('./koaContext');
 const { TYPE_KOA, TYPE_EXPRESS } = require('../../src/consts');
 
-function noop() {}
+async function noop(ctx, next) {
+  await next();
+}
 
 function expressNoopMiddleware(req, res, next) {
   next();
@@ -14,35 +16,46 @@ function createExpressServer({ afterMiddleware, ...hopperOpts }) {
   const hopper = Hopper({ type: TYPE_EXPRESS, ...hopperOpts });
   const lastMiddleware = afterMiddleware || expressNoopMiddleware;
 
-  return http.createServer((req, res) => {
-    hopper(req, res, () => {
-      lastMiddleware(req, res, err => {
-        if (err) {
-          res.statusCode = 500;
-          res.end(err.message);
-        } else {
-          res.end();
-        }
-      });
-    });
+  const app = express();
+  app.use(hopper);
+  app.use(lastMiddleware);
+  app.use((req, res) => {
+    const response = Buffer.from('Hello World');
+    res.setHeader('Content-Length', response.length);
+    res.setHeader('Content-Type', 'text/plain');
+    res.end();
   });
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+    res.statusCode = 500;
+    res.end(err.message);
+  });
+
+  return app;
 }
 
 function createKoaServer({ afterMiddleware, ...hopperOpts }) {
   const hopper = Hopper({ ...hopperOpts });
   const lastMiddleware = afterMiddleware || noop;
 
-  return http.createServer(async (req, res) => {
-    const ctx = createKoaCtx(req, res);
+  const app = new Koa();
 
+  app.use(async (ctx, next) => {
     try {
-      await hopper(ctx, lastMiddleware.bind(null, ctx, noop));
-      res.end();
+      await next();
     } catch (err) {
-      res.statusCode = 500;
-      res.end(err.message);
+      ctx.status = 500;
+      ctx.body = err.message;
     }
   });
+  app.use(hopper);
+  app.use(lastMiddleware);
+  app.use(ctx => {
+    ctx.status = 200;
+    ctx.body = 'Hello World';
+  });
+
+  return app.listen();
 }
 
 const createServerOptions = {
@@ -68,10 +81,15 @@ module.exports = typeOrFn => ({ status, ...rest } = {}) =>
       createServer = createServerOptions[typeOrFn];
     }
 
-    request(createServer(serverOpts))
+    const server = createServer(serverOpts);
+
+    request(server)
       .get('/')
       .expect(wantedStatus)
       .end(err => {
+        if (server.close) {
+          server.close();
+        }
         if (err) {
           reject(err);
         } else {
