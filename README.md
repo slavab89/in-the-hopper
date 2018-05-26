@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/slavab89/in-the-hopper.svg?branch=master)](https://travis-ci.org/slavab89/in-the-hopper)
 [![Coverage Status](https://coveralls.io/repos/github/slavab89/in-the-hopper/badge.svg?branch=master)](https://coveralls.io/github/slavab89/in-the-hopper?branch=ci)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Node.JS middleware for extracting data from a request and working on it separately - logging, metrics etc.
 
