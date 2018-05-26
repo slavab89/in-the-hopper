@@ -1,5 +1,8 @@
 # In The Hopper
 
+[![Build Status](https://travis-ci.org/slavab89/in-the-hopper.svg?branch=master)](https://travis-ci.org/slavab89/in-the-hopper)
+[![Coverage Status](https://coveralls.io/repos/github/slavab89/in-the-hopper/badge.svg?branch=ci)](https://coveralls.io/github/slavab89/in-the-hopper?branch=ci)
+
 Node.JS middleware for extracting data from a request and working on it separately - logging, metrics etc.
 
 This library supports both Koa and Express frameworks out-of-the-box. It can, however, work with any other Node.JS http framework.
