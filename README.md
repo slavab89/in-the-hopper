@@ -76,7 +76,8 @@ For usage with another framework, use [middlewareCreator](#middlewareCreator) op
 
 Default value: `A function that writes a JSON string to stdout.`
 
-Allows to "listen" to the event or a request and do something with the received data.
+Allows to "listen" to the event of a request and do something with the received data.
+By default, the handler will be called once the request ends. To trigger the handler once the request arrives, use [immediate](#immediate) option.
 
 ```js
 hopper({
@@ -195,10 +196,10 @@ hopper({
 ### Koa
 
 ```js
-const express = require('koa');
+const Koa = require('koa');
 const hopper = require('hopper');
 
-const app = koa();
+const app = new Koa();
 app.use(hopper());
 ```
 
@@ -215,10 +216,10 @@ app.use(hopper({ type: 'express' }));
 ### Custom field and handler
 
 ```js
-const express = require('koa');
+const Koa = require('koa');
 const hopper = require('hopper');
 
-const app = koa();
+const app = new Koa();
 const hopMiddleware = hopper({
 	handler: entry => {
 		bunyanLog.info(entry);
