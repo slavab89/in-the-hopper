@@ -5,5 +5,6 @@ cache:
     - node_modules
 node_js:
   - lts/carbon
+  - lts/dubnium
 script:
   - npm run coverage:ci
