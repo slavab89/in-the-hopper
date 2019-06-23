@@ -1,5 +1,6 @@
 # In The Hopper
 
+![npm](https://img.shields.io/npm/v/in-the-hopper.svg)
 [![Build Status](https://travis-ci.org/slavab89/in-the-hopper.svg?branch=master)](https://travis-ci.org/slavab89/in-the-hopper)
 [![Coverage Status](https://coveralls.io/repos/github/slavab89/in-the-hopper/badge.svg?branch=master)](https://coveralls.io/github/slavab89/in-the-hopper?branch=ci)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -97,14 +98,14 @@ Default value: `true`
 Take out predefined values from the request and response.
 The values that are taken are:
 
-* status,
-* ip
-* method
-* url
-* contentLength (of response)
-* contentType (of response)
-* host
-* headers (or request)
+- status,
+- ip
+- method
+- url
+- contentLength (of response)
+- contentType (of response)
+- host
+- headers (or request)
 
 #### timestamps
 
