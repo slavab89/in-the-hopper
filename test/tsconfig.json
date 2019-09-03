@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "alwaysStrict": false
+  },
+  "include": ["./**/*", "../src/globals.d.ts", "../node_modules/@types/mocha/index.d.ts"]
+}

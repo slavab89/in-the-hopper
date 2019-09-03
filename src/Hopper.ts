@@ -1,12 +1,17 @@
-const getFieldInterpreters = require('./getFieldInterpreters');
-const getMiddleware = require('./middlewareCreator');
-const { TYPE_OPTIONS, TYPE_KOA } = require('./consts');
+import getFieldInterpreters from './getFieldInterpreters';
+import getMiddleware from './middlewareCreator';
+import { TYPE_OPTIONS, TYPE_KOA } from './consts';
+// import Resolver from './globals';
 
-function defaultHandler(entry) {
+function defaultHandler(entry: object) {
   console.log(JSON.stringify(entry)); // eslint-disable-line no-console
 }
 
-function resolveJSON(fieldInterpreters, ...args) {
+// type Resolver2 = (fieldInterpreters: object, ...args: any) => Partial<HopperEntry>;
+// var resolveJson2: Resolver;
+// declare function Resolver(fieldInterpreters: object, ...args: any): Partial<HopperEntry>;
+
+function resolveJSON(fieldInterpreters: object, ...args: any) {
   const entryObject = Object.entries(fieldInterpreters).reduce((result, [field, interpreter]) => {
     Object.assign(result, { [field]: interpreter(...args) });
     return result;
@@ -15,7 +20,7 @@ function resolveJSON(fieldInterpreters, ...args) {
   return entryObject;
 }
 
-function Hopper(opts = {}) {
+function Hopper(opts: ModuleOptions) {
   if (opts.type && opts.middlewareCreator) {
     throw new Error('Cant use both type and middlewareCreator options, please only send one');
   }
@@ -70,12 +75,13 @@ function Hopper(opts = {}) {
   }
 
   Object.defineProperty(middleware, 'addField', {
-    value: (fieldName, interpreter) => {
-      fieldInterpreters[fieldName] = interpreter;
+    value: (fieldName: string, interpreter: Function) => {
+      Object.assign(fieldInterpreters, { [fieldName]: interpreter });
+      // fieldInterpreters[fieldName] = interpreter;
     },
   });
 
   return middleware;
 }
 
-module.exports = Hopper;
+export default Hopper;

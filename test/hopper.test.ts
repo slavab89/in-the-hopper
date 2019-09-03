@@ -1,8 +1,8 @@
-const http = require('http');
-const { expect } = require('chai');
-const faker = require('faker');
-const Hopper = require('../');
-const doRequestWrapper = require('./helpers/doRequest');
+import http from 'http';
+import { expect } from 'chai';
+import faker from 'faker';
+import Hopper from '../';
+import doRequestWrapper from './helpers/doRequest';
 
 const noop = () => {};
 
