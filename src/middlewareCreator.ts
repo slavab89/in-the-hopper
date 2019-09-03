@@ -1,5 +1,13 @@
-const onFinished = require('on-finished');
-const { TYPE_KOA, TYPE_EXPRESS } = require('./consts');
+import onFinished from 'on-finished';
+import * as Koa from 'koa';
+import * as Express from 'express';
+import { TYPE_KOA, TYPE_EXPRESS } from './consts';
+import { IncomingMessage, OutgoingMessage } from 'http';
+
+type RequestWrapper = <T extends IncomingMessage | OutgoingMessage>(
+  requestTime: number,
+  ...args: any
+) => (err?: Error | null, msg?: T) => void;
 
 const onRequestWrapper = ({
   fieldInterpreters,
@@ -8,8 +16,8 @@ const onRequestWrapper = ({
   timestamps,
   immediate,
   ignore,
-}) => (requestTime, ...args) =>
-  function onRequestHandler() {
+}: HopperOptions): RequestWrapper => (requestTime: number, ...args: any) =>
+  function onRequestHandler(): void {
     if (typeof ignore === 'function' && ignore(...args)) {
       return;
     }
@@ -38,7 +46,13 @@ const onRequestWrapper = ({
     handler(entry);
   };
 
-const triggerHandlerWrapper = ({ onRequestHandler, immediate }) => res => (...args) => {
+const triggerHandlerWrapper = ({
+  onRequestHandler,
+  immediate,
+}: {
+  onRequestHandler: RequestWrapper;
+  immediate: boolean;
+}) => <T extends IncomingMessage | OutgoingMessage>(res: T) => (...args: any) => {
   const requestTime = Date.now();
   const requestHandler = onRequestHandler(requestTime, ...args);
   if (immediate) {
@@ -48,19 +62,32 @@ const triggerHandlerWrapper = ({ onRequestHandler, immediate }) => res => (...ar
   }
 };
 
-const koaMiddlewareWrapper = triggerHandler => async (ctx, next) => {
+const koaMiddlewareWrapper = (triggerHandler: Function) => async (
+  ctx: Koa.Context,
+  next: Function,
+) => {
   triggerHandler(ctx.res)(ctx);
   await next();
 };
 
-const expressMiddlewareWrapper = triggerHandler => (req, res, next) => {
+const expressMiddlewareWrapper = (triggerHandler: Function) => (
+  req: Express.Request,
+  res: Express.Response,
+  next: Function,
+) => {
   // Trigger cache getter ip because later it will be undefined
   req.ip; // eslint-disable-line no-unused-expressions
   triggerHandler(res)(req, res);
   next();
 };
 
-module.exports = ({ middlewareCreator, type }, middlewareOpts) => {
+export default (
+  {
+    middlewareCreator,
+    type,
+  }: { middlewareCreator: (opts: HopperOptions) => Function; type?: string },
+  middlewareOpts: HopperOptions,
+) => {
   let middleware;
 
   if (middlewareCreator) {

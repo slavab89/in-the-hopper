@@ -1,9 +1,9 @@
-const { expect } = require('chai');
-const http = require('http');
-const faker = require('faker');
-const lolex = require('lolex');
-const doRequestWrapper = require('./helpers/doRequest');
-const { TYPE_KOA, TYPE_EXPRESS, TYPE_OPTIONS } = require('../src/consts');
+import { expect } from 'chai';
+import http from 'http';
+import faker from 'faker';
+import lolex from 'lolex';
+import doRequestWrapper from './helpers/doRequest';
+import { TYPE_KOA, TYPE_EXPRESS, TYPE_OPTIONS } from '../src/consts';
 
 describe('Vendor hopper', () => {
   TYPE_OPTIONS.forEach(type => {

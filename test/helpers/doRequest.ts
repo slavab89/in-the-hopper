@@ -1,8 +1,9 @@
-const request = require('supertest');
-const Koa = require('koa');
-const express = require('express');
-const Hopper = require('../../');
-const { TYPE_KOA, TYPE_EXPRESS } = require('../../src/consts');
+import request from 'supertest';
+import Koa from 'koa';
+import express from 'express';
+import Hopper from '../../';
+// const { TYPE_KOA, TYPE_EXPRESS } = require('../../src/consts');
+import { TYPE_KOA, TYPE_EXPRESS } from '../../src/consts';
 
 async function noop(ctx, next) {
   await next();
@@ -63,7 +64,7 @@ const createServerOptions = {
   [TYPE_EXPRESS]: createExpressServer,
 };
 
-module.exports = typeOrFn => ({ status, ...rest } = {}) =>
+export default typeOrFn => ({ status, ...rest } = {}) =>
   new Promise((resolve, reject) => {
     let handlerResult;
     const serverOpts = {
