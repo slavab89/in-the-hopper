@@ -16,7 +16,7 @@
   "scripts": {
     "commit": "git-cz",
     "test": "TS_NODE_PROJECT='./test/tsconfig.json' mocha",
-    "coverage": "TS_NODE_PROJECT='./test/tsconfig.json' nyc mocha",
+    "coverage": "TS_NODE_PROJECT='./test/tsconfig.json' nyc --reporter=lcovonly --reporter=text mocha",
     "release": "standard-version",
     "tsc": "tsc",
     "prepare": "husky install"
