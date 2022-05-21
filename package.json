@@ -17,7 +17,6 @@
     "commit": "git-cz",
     "test": "TS_NODE_PROJECT='./test/tsconfig.json' mocha",
     "coverage": "TS_NODE_PROJECT='./test/tsconfig.json' nyc mocha",
-    "coverage:ci": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
     "release": "standard-version",
     "tsc": "tsc",
     "prepare": "husky install"
