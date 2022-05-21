@@ -1,19 +1,36 @@
+import { Middleware } from 'koa';
 import getFieldInterpreters from './getFieldInterpreters';
 import getMiddleware from './middlewareCreator';
-import { TYPE_OPTIONS, TYPE_KOA } from './consts';
-import { Handler, HopperOptions, Resolver, TimestampOptions } from './types';
-// import Resolver from './globals';
+import { ServerType } from './consts';
+import {
+  ExpressFieldResolver,
+  ExpressMiddleware,
+  FieldInterpreters,
+  Handler,
+  HopperOptions,
+  KoaFieldResolver,
+  Resolver,
+  TimestampOptions,
+} from './types';
+
+export interface ModuleOptions {
+  handler?: typeof Handler;
+  type?: ServerType | string;
+  defaultFields?: boolean;
+  immediate?: boolean;
+  timestamps?: boolean | Readonly<TimestampOptions>;
+  ignore?: (...args: any) => boolean;
+  resolver?: typeof Resolver;
+  middlewareCreator?: (opts: HopperOptions) => Middleware | ExpressMiddleware;
+}
 
 function defaultHandler(entry: object) {
   console.log(JSON.stringify(entry)); // eslint-disable-line no-console
 }
 
-// type Resolver2 = (fieldInterpreters: object, ...args: any) => Partial<HopperEntry>;
-// var resolveJson2: Resolver;
-// declare function Resolver(fieldInterpreters: object, ...args: any): Partial<HopperEntry>;
-
-function resolveJSON(fieldInterpreters: object, ...args: any) {
+function resolveJSON(fieldInterpreters: FieldInterpreters, ...args: any) {
   const entryObject = Object.entries(fieldInterpreters).reduce((result, [field, interpreter]) => {
+    // @ts-ignore
     Object.assign(result, { [field]: interpreter(...args) });
     return result;
   }, {});
@@ -21,24 +38,13 @@ function resolveJSON(fieldInterpreters: object, ...args: any) {
   return entryObject;
 }
 
-export interface ModuleOptions {
-  handler: typeof Handler;
-  type?: string;
-  defaultFields?: boolean;
-  immediate?: boolean;
-  timestamps?: boolean | Readonly<TimestampOptions>;
-  ignore?: (...args: any) => boolean;
-  resolver?: typeof Resolver;
-  middlewareCreator?: (opts: HopperOptions) => Function;
-}
-
-function Hopper(opts: ModuleOptions) {
+export function Hopper<T>(opts: ModuleOptions) {
   if (opts.type && opts.middlewareCreator) {
     throw new Error('Cant use both type and middlewareCreator options, please only send one');
   }
 
-  if (opts.type && !TYPE_OPTIONS.includes(opts.type)) {
-    throw new TypeError(`type can be one of ${TYPE_OPTIONS}`);
+  if (opts.type && !Object.values(ServerType).includes(opts.type as ServerType)) {
+    throw new TypeError(`type can be one of ${Object.values(ServerType)}`);
   }
 
   if (opts.middlewareCreator && typeof opts.middlewareCreator !== 'function') {
@@ -47,7 +53,7 @@ function Hopper(opts: ModuleOptions) {
 
   const options = {
     defaultFields: true,
-    type: TYPE_KOA,
+    type: ServerType.Koa,
     immediate: false,
     timestamps: { responseTime: true },
     resolver: resolveJSON,
@@ -55,7 +61,7 @@ function Hopper(opts: ModuleOptions) {
     ...opts,
   };
 
-  const fieldInterpreters = {};
+  const fieldInterpreters: FieldInterpreters = {};
   if (!options.middlewareCreator) {
     Object.assign(
       fieldInterpreters,
@@ -87,13 +93,10 @@ function Hopper(opts: ModuleOptions) {
   }
 
   Object.defineProperty(middleware, 'addField', {
-    value: (fieldName: string, interpreter: Function) => {
+    value: (fieldName: string, interpreter: KoaFieldResolver | ExpressFieldResolver) => {
       Object.assign(fieldInterpreters, { [fieldName]: interpreter });
-      // fieldInterpreters[fieldName] = interpreter;
     },
   });
 
   return middleware;
 }
-
-export default Hopper;

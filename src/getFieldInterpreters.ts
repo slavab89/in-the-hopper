@@ -1,24 +1,25 @@
 import * as Koa from 'koa';
 import * as Express from 'express';
-import { TYPE_KOA, TYPE_EXPRESS } from './consts';
+import { ServerType } from './consts';
+import { ExpressFieldResolver, FieldInterpreters, KoaFieldResolver } from './types';
 
-function koaResolver(field: keyof Koa.Context): any {
+function koaResolver(field: keyof Koa.Context): KoaFieldResolver {
   return (ctx: Koa.Context) => ctx[field];
 }
 
 function ipResolver(req: Express.Request) {
-  return req.ip || (req.connection && req.connection.remoteAddress) || undefined;
+  return req.ip || (req.socket && req.socket.remoteAddress) || undefined;
 }
 
 function hostResolver(req: Express.Request) {
   return req.hostname || req.headers.host;
 }
 
-function requestResolver(field: keyof Express.Request): any {
+function requestResolver(field: keyof Express.Request): ExpressFieldResolver {
   return (req: Express.Request) => req[field];
 }
 
-function responseHeaderResolver(field: string) {
+function responseHeaderResolver(field: string): ExpressFieldResolver {
   return (_req: Express.Request, res: Express.Response) => {
     if (!res.headersSent) {
       return undefined;
@@ -52,13 +53,13 @@ const expressDefaultResolvers = {
   headers: requestResolver('headers'),
 };
 
-export default ({ type, defaultFields }: { type: string; defaultFields: boolean }) => {
+export default ({ type, defaultFields }: { type: ServerType | string; defaultFields: boolean }): FieldInterpreters => {
   const fieldResolvers = {};
 
   if (typeof defaultFields === 'boolean' && defaultFields) {
-    if (type === TYPE_KOA) {
+    if (type === ServerType.Koa) {
       Object.assign(fieldResolvers, koaDefaultResolvers);
-    } else if (type === TYPE_EXPRESS) {
+    } else if (type === ServerType.Express) {
       Object.assign(fieldResolvers, expressDefaultResolvers);
     }
   }

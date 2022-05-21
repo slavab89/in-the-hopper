@@ -1,10 +1,10 @@
 import request from 'supertest';
-import Koa from 'koa';
+import Koa, { Middleware } from 'koa';
 import express from 'express';
-import Hopper from '../../src';
-// const { TYPE_KOA, TYPE_EXPRESS } = require('../../src/consts');
-import { TYPE_KOA, TYPE_EXPRESS } from '../../src/consts';
+import { Hopper } from '../../src';
+import { ServerType } from '../../src/consts';
 import { ModuleOptions } from '../../src/Hopper';
+import { ExpressMiddleware } from '../../src/types';
 
 async function noop(ctx, next) {
   await next();
@@ -15,11 +15,11 @@ function expressNoopMiddleware(req, res, next) {
 }
 
 function createExpressServer({ afterMiddleware, handler, ...hopperOpts }) {
-  const hopper = Hopper({ type: TYPE_EXPRESS, handler, ...hopperOpts });
+  const hopper = Hopper({ type: ServerType.Express, handler, ...hopperOpts });
   const lastMiddleware = afterMiddleware || expressNoopMiddleware;
 
   const app = express();
-  app.use(hopper);
+  app.use(hopper as ExpressMiddleware);
   app.use(lastMiddleware);
   app.use((req, res) => {
     const response = Buffer.from('Hello World');
@@ -50,7 +50,7 @@ function createKoaServer({ afterMiddleware, handler, ...hopperOpts }) {
       ctx.body = err.message;
     }
   });
-  app.use(hopper);
+  app.use(hopper as Middleware);
   app.use(lastMiddleware);
   app.use((ctx) => {
     ctx.status = 200;
@@ -61,8 +61,8 @@ function createKoaServer({ afterMiddleware, handler, ...hopperOpts }) {
 }
 
 const createServerOptions = {
-  [TYPE_KOA]: createKoaServer,
-  [TYPE_EXPRESS]: createExpressServer,
+  [ServerType.Koa]: createKoaServer,
+  [ServerType.Express]: createExpressServer,
 };
 
 export default (typeOrFn) =>

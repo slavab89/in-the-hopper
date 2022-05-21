@@ -1,7 +1,7 @@
 import http from 'http';
 import { expect } from 'chai';
 import faker from '@faker-js/faker';
-import Hopper from '../src';
+import { Hopper } from '../src';
 import doRequestWrapper from './helpers/doRequest';
 
 const noop = () => {};
@@ -50,7 +50,6 @@ describe('Hopper functionality', () => {
   });
 
   it('should validate that type is one of predefined', () => {
-    // @ts-expect-error
     expect(() => Hopper({ type: 'else' })).to.throw(TypeError, 'type can be one of');
   });
 
@@ -67,7 +66,7 @@ describe('Hopper functionality', () => {
       return noop;
     };
     const hopper = Hopper({ handler, resolver, middlewareCreator: midCreator });
-    hopper();
+    hopper(null, null, null);
   });
 
   it('should invoke handler with a default json empty object given custom middleware', async () => {

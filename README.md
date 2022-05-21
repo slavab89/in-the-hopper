@@ -1,8 +1,8 @@
 # In The Hopper
 
 [![npm](https://img.shields.io/npm/v/in-the-hopper.svg)](https://www.npmjs.com/package/in-the-hopper)
-[![Build Status](https://travis-ci.org/slavab89/in-the-hopper.svg?branch=master)](https://travis-ci.org/slavab89/in-the-hopper)
-[![Coverage Status](https://coveralls.io/repos/github/slavab89/in-the-hopper/badge.svg?branch=master)](https://coveralls.io/github/slavab89/in-the-hopper?branch=ci)
+![Build Status](https://github.com/slavab89/in-the-hopper/actions/workflows/nodejs.yml/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/slavab89/in-the-hopper/branch/master/graph/badge.svg?token=EZSJ9ADCAS)](https://codecov.io/gh/slavab89/in-the-hopper)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Node.JS middleware for extracting data from a request and working on it separately - logging, metrics etc.
@@ -82,7 +82,7 @@ By default, the handler will be called once the request ends. To trigger the han
 
 ```js
 hopper({
-  handler: function(entry) {
+  handler: function (entry) {
     someLogger.info(entry);
   },
 });
@@ -131,7 +131,7 @@ The function should return a boolean value. It is called with the middleware par
 ```js
 // Koa type
 hopper({
-  ignore: ctx => ctx.status === 200,
+  ignore: (ctx) => ctx.status === 200,
 });
 // Express type
 hopper({
@@ -172,7 +172,7 @@ Once passed, it will override what happens during the middleware and all interna
 
 ```js
 hopper({
-  middlewareCreator: opts => {
+  middlewareCreator: (opts) => {
     /*
 		opts is an object of:
 		{

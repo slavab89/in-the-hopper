@@ -3,10 +3,10 @@ import http from 'http';
 import faker from '@faker-js/faker';
 import lolex from 'lolex';
 import doRequestWrapper from './helpers/doRequest';
-import { TYPE_KOA, TYPE_EXPRESS, TYPE_OPTIONS } from '../src/consts';
+import { ServerType } from '../src/consts';
 
 describe('Vendor hopper', () => {
-  TYPE_OPTIONS.forEach((type) => {
+  Object.values(ServerType).forEach((type) => {
     describe(type, () => {
       const doRequest = doRequestWrapper(type);
 
@@ -37,12 +37,12 @@ describe('Vendor hopper', () => {
 
       it('should call resolver with correct args', async () => {
         const resolver = (fieldInterpreters, ...args) => {
-          if (type === TYPE_KOA) {
+          if (type === ServerType.Koa) {
             expect(args).to.have.lengthOf(1);
             const ctx = args[0];
             expect(ctx.req).to.be.an.instanceOf(http.IncomingMessage);
             expect(ctx.res).to.be.an.instanceOf(http.ServerResponse);
-          } else if (type === TYPE_EXPRESS) {
+          } else if (type === ServerType.Express) {
             expect(args).to.have.lengthOf(2);
             expect(args[0]).to.be.an.instanceOf(http.IncomingMessage);
             expect(args[1]).to.be.an.instanceOf(http.ServerResponse);
@@ -131,9 +131,9 @@ describe('Vendor hopper', () => {
       it('should still call handler when error is handled', async () => {
         const afterMiddleware = (...args) => {
           const error = new Error('FAIL');
-          if (type === TYPE_KOA) {
+          if (type === ServerType.Koa) {
             throw error;
-          } else if (type === TYPE_EXPRESS) {
+          } else if (type === ServerType.Express) {
             args[args.length - 1](error);
           }
         };
@@ -161,11 +161,11 @@ describe('Vendor hopper', () => {
 
       it('should pass relevant fields to ignore function', async () => {
         const ignore = (...args) => {
-          if (type === TYPE_KOA) {
+          if (type === ServerType.Koa) {
             expect(args).to.have.lengthOf(1);
             expect(args[0].req).to.be.an.instanceOf(http.IncomingMessage);
             expect(args[0].res).to.be.an.instanceOf(http.ServerResponse);
-          } else if (type === TYPE_EXPRESS) {
+          } else if (type === ServerType.Express) {
             expect(args).to.have.lengthOf(2);
             expect(args[0]).to.be.an.instanceOf(http.IncomingMessage);
             expect(args[1]).to.be.an.instanceOf(http.ServerResponse);

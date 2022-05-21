@@ -1,3 +1,1 @@
-import hopper from './Hopper';
-
-export default hopper;
+export * from './Hopper';
