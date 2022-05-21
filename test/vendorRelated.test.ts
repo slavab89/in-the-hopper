@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 import http from 'http';
-import faker from 'faker';
+import faker from '@faker-js/faker';
 import lolex from 'lolex';
 import doRequestWrapper from './helpers/doRequest';
 import { TYPE_KOA, TYPE_EXPRESS, TYPE_OPTIONS } from '../src/consts';
 
 describe('Vendor hopper', () => {
-  TYPE_OPTIONS.forEach(type => {
+  TYPE_OPTIONS.forEach((type) => {
     describe(type, () => {
       const doRequest = doRequestWrapper(type);
 
       it('should use default options and return fields', async () => {
-        const entry = await doRequest();
+        const entry = await doRequest({});
         expect(entry).to.have.all.keys([
           'responseTime',
           'status',
@@ -26,17 +26,8 @@ describe('Vendor hopper', () => {
       });
 
       it('should call resolver default interpreterFields', async () => {
-        const resolver = fieldInterpreters => {
-          expect(fieldInterpreters).to.have.all.keys([
-            'status',
-            'ip',
-            'method',
-            'url',
-            'contentLength',
-            'contentType',
-            'host',
-            'headers',
-          ]);
+        const resolver = (fieldInterpreters) => {
+          expect(fieldInterpreters).to.have.all.keys(['status', 'ip', 'method', 'url', 'contentLength', 'contentType', 'host', 'headers']);
 
           return {};
         };
@@ -64,7 +55,7 @@ describe('Vendor hopper', () => {
       });
 
       it('should have some response data in handler', async () => {
-        const entry = await doRequest();
+        const entry = await doRequest({});
         expect(entry).to.have.property('status', 200);
         expect(entry).to.have.property('method', 'GET');
       });
@@ -75,7 +66,7 @@ describe('Vendor hopper', () => {
       });
 
       it('should record responseTime based on default options', async () => {
-        const fakeTime = faker.random.number();
+        const fakeTime = faker.datatype.number();
         const responseTime = 2000;
         const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
 
@@ -92,7 +83,7 @@ describe('Vendor hopper', () => {
       });
 
       it('should record responseTime when option passed', async () => {
-        const fakeTime = faker.random.number();
+        const fakeTime = faker.datatype.number();
         const responseTime = 2000;
         const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
 
@@ -107,7 +98,7 @@ describe('Vendor hopper', () => {
       });
 
       it('should record requestTime when option passed', async () => {
-        const fakeTime = faker.random.number();
+        const fakeTime = faker.datatype.number();
         const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
 
         const entry = await doRequest({ timestamps: { requestTime: true } });
@@ -116,7 +107,7 @@ describe('Vendor hopper', () => {
       });
 
       it('should record both times when option passed', async () => {
-        const fakeTime = faker.random.number();
+        const fakeTime = faker.datatype.number();
         const responseTime = 2000;
         const clock = lolex.install({ now: fakeTime, toFake: ['Date'] });
 

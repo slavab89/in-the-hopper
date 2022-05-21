@@ -1,22 +1,24 @@
 import http from 'http';
 import { expect } from 'chai';
-import faker from 'faker';
-import Hopper from '../';
+import faker from '@faker-js/faker';
+import Hopper from '../src';
 import doRequestWrapper from './helpers/doRequest';
 
 const noop = () => {};
 
-const middlewareCreator = ({ fieldInterpreters, resolver, handler }) => (req, res) => {
-  const entry = resolver(fieldInterpreters, req, res);
-  handler(entry);
-};
+const middlewareCreator =
+  ({ fieldInterpreters, resolver, handler }) =>
+  (req, res) => {
+    const entry = resolver(fieldInterpreters, req, res);
+    handler(entry);
+  };
 
 describe('Hopper functionality', () => {
   let hopperInstance;
   let doRequest;
 
   beforeEach(() => {
-    doRequest = doRequestWrapper(hopperOpts => {
+    doRequest = doRequestWrapper((hopperOpts) => {
       hopperInstance = Hopper({ ...hopperOpts });
 
       return http.createServer(async (req, res) => {
@@ -32,40 +34,31 @@ describe('Hopper functionality', () => {
   });
 
   it('should validate that middlewareCreator is a function', () => {
+    // @ts-expect-error
     expect(() => Hopper({ middlewareCreator: {} })).to.throw(TypeError, 'should be a function');
   });
 
   it('should validate that only type or middleware creator are sent', () => {
-    expect(() => Hopper({ middlewareCreator: noop, type: 'koa' })).to.throw(
-      Error,
-      'Cant use both type and middlewareCreator',
-    );
+    // @ts-expect-error
+    expect(() => Hopper({ middlewareCreator: noop, type: 'koa' })).to.throw(Error, 'Cant use both type and middlewareCreator');
   });
 
   it('should validate that middlewareCreator returns a function', () => {
     const midCreator = () => ({});
-    expect(() => Hopper({ middlewareCreator: midCreator })).to.throw(
-      TypeError,
-      'should return a function',
-    );
+    // @ts-expect-error
+    expect(() => Hopper({ middlewareCreator: midCreator })).to.throw(TypeError, 'should return a function');
   });
 
   it('should validate that type is one of predefined', () => {
+    // @ts-expect-error
     expect(() => Hopper({ type: 'else' })).to.throw(TypeError, 'type can be one of');
   });
 
   it('should pass relevant options to middleware creator', async () => {
     const handler = noop;
-    const resolver = noop;
-    const midCreator = opts => {
-      expect(opts).to.have.all.keys([
-        'fieldInterpreters',
-        'resolver',
-        'handler',
-        'immediate',
-        'timestamps',
-        'ignore',
-      ]);
+    const resolver = () => ({});
+    const midCreator = (opts) => {
+      expect(opts).to.have.all.keys(['fieldInterpreters', 'resolver', 'handler', 'immediate', 'timestamps', 'ignore']);
       expect(opts.fieldInterpreters).to.be.a('object');
       expect(opts.resolver).to.equal(resolver);
       expect(opts.handler).to.equal(handler);
@@ -84,7 +77,7 @@ describe('Hopper functionality', () => {
   });
 
   it('should add a custom field', async () => {
-    const rKey = faker.random.objectElement();
+    const rKey = faker.random.word();
     const rValue = faker.random.word();
 
     const promise = doRequest({ middlewareCreator });
@@ -94,7 +87,7 @@ describe('Hopper functionality', () => {
   });
 
   it('should invoke resolver with valid params', async () => {
-    const rKey = faker.random.objectElement();
+    const rKey = faker.random.word();
     const rValue = faker.random.word();
     const resolverr = () => rValue;
     const resolver = (fieldInterpreters, req, res) => {

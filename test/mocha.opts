@@ -1,2 +1,0 @@
---require ./node_modules/ts-node/register/transpile-only
---require ./node_modules/source-map-support/register

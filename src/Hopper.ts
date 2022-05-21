@@ -1,6 +1,7 @@
 import getFieldInterpreters from './getFieldInterpreters';
 import getMiddleware from './middlewareCreator';
 import { TYPE_OPTIONS, TYPE_KOA } from './consts';
+import { Handler, HopperOptions, Resolver, TimestampOptions } from './types';
 // import Resolver from './globals';
 
 function defaultHandler(entry: object) {
@@ -18,6 +19,17 @@ function resolveJSON(fieldInterpreters: object, ...args: any) {
   }, {});
 
   return entryObject;
+}
+
+export interface ModuleOptions {
+  handler: typeof Handler;
+  type?: string;
+  defaultFields?: boolean;
+  immediate?: boolean;
+  timestamps?: boolean | Readonly<TimestampOptions>;
+  ignore?: (...args: any) => boolean;
+  resolver?: typeof Resolver;
+  middlewareCreator?: (opts: HopperOptions) => Function;
 }
 
 function Hopper(opts: ModuleOptions) {
